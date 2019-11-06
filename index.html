@@ -1,0 +1,103 @@
+<html>
+	<head>
+		<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+		<script type="text/javascript">
+
+			var socket = io.connect();
+
+			socket.on('connect', function() {
+				console.log("Connected");
+
+				// Once we are connected, request the history
+				socket.emit('history', null);
+			});
+
+			// Receive from any event
+			socket.on('chatmessage', function (data) {
+				//console.log(data);
+				document.getElementById('messages').innerHTML = document.getElementById('messages').innerHTML+
+				"" + data +"<br>";
+				document.getElementById('emptyTxt').style.visibility = "hidden";
+			});
+
+			socket.on('prompt', function (data) {
+				let promptDiv = document.getElementById('prompt');
+				promptDiv.innerHTML = data;
+			})
+
+			var sendmessage = function(name, message) {
+				console.log("chatmessage: " + message);
+				socket.emit(name, message);
+			};
+
+			window.addEventListener('load', init);
+			var promptButton;
+			var prompts = ['Write about a character who wakes up in a space pod alone...next to a ship so massive it\'s actually carrying a planet beneath it. Your character has no memory from before they wake.',
+									'Write a story about a character who lives in a world where every single person\'s DNA is carefully genetically designed for something to help the community. Your main character despises what they were created for. This has never happened before.',
+									'Write about how your character lives on a planet other than Earth. In fact, they don\'t even know Earth exists. Well, they didn\'t until some sort of advanced, technical probe crash-landed in their settlement, exposing the fact that they\'re not alone. Now they have to decide what\'s best for their settlement.',
+									'Write a book about how the world used to be plagued with war and famine and inhumanity. But after years and years of developing a technical system that is the center of and controls everything, it\'s almost completely peaceful. Your character is the engineer keeping the system running and when they uncover how it works, they contemplate abandoning everything they know.',
+									'Write about the newest advancement in virtual reality that adds a physical sense. Now your characters can even hook up with people through your phone, all while staying at home. But when a glitch alters the mechanisms, what was once pleasure becomes pain and the user gets trapped in a VR state.',
+									'Write a story about how others have been keeping your character alive for over 300 years because of a secret they know. When someone new finally learns the truth, reality becomes...confusing. Now, with only a short adulthood left to live, your character must ensure nobody else learns of this secret. But...well, news spreads fast.',
+									'Write about how they didn\'t mean to, but in an attempt to build a time traveling machine, your character actually discovered alternate universes-and then accidentally trapped themselves there. Oh, and this alternate universe hasn\'t discovered electricity yet.',
+									'Write a story about a character who lives in an ancient society. When a shiny, unnatural looking contraption touches down and creatures emerge, everything they once knew changes.',
+									'Write about how the only reason your character is alive is because of a test device implanted around their heart. It wasn\'t supposed to work and now, they\'re not only healed, but they\'re also changing. Just what exactly was that device made out of?',
+									'Write about a character who wakes up in a dark, hot room dressed in hardly anything. Their memory is foggy but clearing up, and they have some sort of technical device securing their hands together. They stumble over to a tiny window that gives them a clear view of a world far below them.',
+									'Write about your character\'s sister who is discovered dead and the cause of death ruled an overdose. Your character knows better. She was the only person in the family who never had an issue with drugs. In fact, she was developing a cure for cancer in the most advanced research center in the world. Your character finds that...suspicious.',
+									'Write a story about how computers are outlawed. Having access to technology is punishable by life in prison. Your character runs an underground cyber center that gets crashed by local law enforcement. But during interrogation, they get hired instead of prosecuted...because something unworldly has touched down.',
+									'Write about a character who accidentally created a virtual reality software that taps into the user\'s psyche and creates their ultimate dream reality. They were on track to become a billionaire until some users became addicted and unable to free themselves from its hold.',
+									'Write a story about how the world your character currently lives on is nearing its breaking point. While the rest of the world rushes to evacuate everyone to a space pod with a destination of a livable planet, your character remains behind bars, left to die with the rest of the world\'s prisoners. The kicker? They\'re wrongfully convicted.',
+									'Write about how disease is finally eradicated. Cancer is nothing more than an old nightmare. Your character spent years working his way into a lab dedicated to making sure it stays that way. Their secret? They\'re a hardcore believer in natural selection. He decides to take Darwinism into his own hands.',
+									'Write a book about a city that\'s the first to implement an entirely technological government. It\'s under strict surveillance from the outside in order to determine if this is the future of your country...and the world. Your character stumbles into trouble when they discover that technology isn\'t in charge at all \- a group of people they\'ve never seen or heard of are.',
+									'Write about hot time altering is possible, but fatally illegal. In this world, characters can bend, pause, rewind, and even fast forward time...but at the risk of their lives. Your character, in a midst of panic, accidentally alters time...by going 300 years into the past.',
+									'Write a story about how the outdoors is plagued with radioactive particles created by a new technology once thought to eradicate airborne diseases. People are confined to the indoors unless they use a special, very expensive suit. Citizens who can\'t afford them are driven mad by confinement. Your character wants to find a way for everyone to have a suit-no matter what law enforcement says.',
+									'Write about a character who invents airborne particles with the intent to eradicate diseases. Unfortunately, they become radioactive, toxic, and severely deadly to anyone who breathes in even a tiny amount.',
+									'Scientists have created a man-made atmosphere around the planet of Mars in order to make it completely livable. Your character is one of the lucky few who are chosen to be among the first to inhabit the planet. What they don\'t know is that there is no atmosphere...and others already inhabit it.',
+									'Write about your character who lives in a world where the outdoors is plagued with natural disasters daily. Venturing outside is dangerous and rarely done. When they\'re forced to leave their home to rush to the aid of someone struggling outside, they learn that those \"natural\" disasters are completely fabricated. Their new life mission is to find out why.',
+									'Write a story about how in your character\'s world, identity is implanted into your forearm at birth. It\'s scannable and contains any information someone would ever need to know, including age, overall health, risk for diseases, and more. Your character, having spent their life in a type of foster care, applies for a job only to realize that now, at the age of 18, their identity is showing two different sets of information.',
+									'Your character\'s job is to lead the mission of colonizing new planets-even if there\'s life present. When the truth of how they manage to find habitable planets surfaces, a new recruit shows them just how wrong it really is. Your characters new goal? To stop it.',
+									'Write about how oceanic cities have been built for the rich. They float atop the ocean, traveling hundreds of miles a day, all while its citizens go about their everyday life. Unfortunately, your character discovers a superstorm developing below the ocean\'s surface, something that has never happened before-something they are wildly unprepared for.',
+									'Your character develops a new device you implant in your ear that reads the minds of those they focus on. After light testing, they accidentally discover that the local baker has a massive, dangerous, potentially even deadly secret.',
+									'Write about how in the distant future, magic is discovered as being real...at least for the humanoid creatures inhabiting an Earth-like planet. Your main character is among the few chosen to venture to the planet and study them. They just never expected to discover the source of the magic like they did in the process.',
+									'Write a story about how oxygen levels on Earth have been plummeting for centuries. Now, with the population dwindling due to suffocation and disease, your main character has to find a way off the dying planet without attracting too much attention from the Keeps, also known as the highly deadly enforcement force tasked with making sure only certain individuals leave.',
+									'Write a story about how centuries ago, a solar flare damaged the Earth\'s atmosphere in the opposite way expected; it actually made it stronger. But now the sun\'s rays have difficulty penetrating it and the world is slowly growing colder. Your character is among the many determined to find a way to fix it.',
+									'Happiness is an illusion, as are every other emotion. In your futuristic society, humans are bred in a lab without them as a means of creating equality. The only problem is that your main character was born the natural way... with every emotion intact. If this is discovered, they\'ll have to fend for their life.',
+									'Write about how your main character was in the wrong place at the wrong time. Tasked with delivering something seemingly unimportant, they witness something they shouldn\'t have and are pulled into a world of secrecy, dangerous weapon manufacturing, and a virtual war the public is blind to.'];
+
+			function init(){
+				promptButton = document.getElementById('promptButton');
+				console.log(promptButton);
+				promptButton.addEventListener("click", function(){
+					console.log('give me a new prompt!');
+					let promptDiv = document.getElementById('prompt');
+					let thePrompt = prompts[Math.floor(Math.random()*30)]
+					promptDiv.innerHTML = thePrompt;
+					sendmessage('prompt', thePrompt)
+				});
+				// a list of sci-fi prompts
+
+			}
+
+
+
+
+
+		</script>
+	</head>
+ <body>
+	 	<div style="height:300px; width:100%">
+			<h2 id = "prompt">
+			Let's start the story game!
+			</h2>
+		</div>
+		<div style="height:80px; width:100%; align:center">
+			<button id = "promptButton"> Get a prompt </button>
+			<h4> So far, we've had:
+			</h4>
+		</div>
+ 		<div id = "messages">
+ 		</div>
+		<p id = "emptyTxt">Ohhhh nobody has written! Do you want to be the first author?</p>
+ 		<input type="text" id="message" name="message">
+ 		<input type="submit" value="Continue Writing" onclick="sendmessage('chatmessage', document.getElementById('message').value);">
+ </body>
+</html>
